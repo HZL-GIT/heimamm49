@@ -1,6 +1,15 @@
 import Vue from 'vue'
 import App from './App.vue'
 
+// 导入路由
+import VueRouter from 'vue-router';
+Vue.use(VueRouter);
+const router = new VueRouter({
+  routes: [
+    {path:'/',component:null}
+  ]
+})
+
 // 导入element插件
 import ElementUI from 'element-ui';
 // 导入element响应的css样式
@@ -12,4 +21,5 @@ Vue.config.productionTip = false
 
 new Vue({
   render: h => h(App),
+  router
 }).$mount('#app')
