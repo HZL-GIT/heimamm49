@@ -1,14 +1,8 @@
 import Vue from 'vue'
 import App from './App.vue'
 
-// 导入路由
-import VueRouter from 'vue-router';
-Vue.use(VueRouter);
-const router = new VueRouter({
-  routes: [
-    {path:'/',component:null}
-  ]
-})
+import router from '@/router/router.js'
+
 
 // 导入element插件
 import ElementUI from 'element-ui';
