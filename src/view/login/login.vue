@@ -57,7 +57,7 @@
           <el-form-item>
             <el-button type="primary" @click="loginClick" class="login-w">登录</el-button>
             <br />
-            <el-button type="primary" class="login-w">注册</el-button>
+            <el-button type="primary" class="login-w" @click="showRegister">注册</el-button>
           </el-form-item>
         </el-form>
       </div>
@@ -65,11 +65,17 @@
     <div class="rigth">
       <img src="@/assets/img/login_banner_ele.png" alt />
     </div>
+    <!-- 用户注册弹窗 -->
+    <register ref="register"></register>
   </div>
 </template>
 
 <script>
+import register from "@/view/login/register";
 export default {
+  components: {
+    register
+  },
   data() {
     return {
       form: {
@@ -84,7 +90,7 @@ export default {
           { required: true, message: "请输入密码", trigger: "change" },
           { min: 6, max: 12, message: "请输入6到12位的密码", trigger: "change" }
         ],
-        code:[
+        code: [
           { required: true, message: "请输入验证码", trigger: "change" },
           { min: 4, max: 4, message: "请输入正确的验证码", trigger: "change" }
         ]
@@ -93,14 +99,17 @@ export default {
   },
   methods: {
     loginClick() {
-      this.$refs.form.validate(result=>{
+      this.$refs.form.validate(result => {
         if (result) {
-          this.$message.success(result + '')
+          this.$message.success(result + "");
           //result返回的是布尔值，而$message需要的是字符串，所以用 + 号拼接成了字符串
         } else {
-          this.$message.error(result + '')
+          this.$message.error(result + "");
         }
-      })
+      });
+    },
+    showRegister(){
+      this.$refs.register.dialogFormVisible = true
     }
   }
 };
