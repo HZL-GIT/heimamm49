@@ -111,7 +111,10 @@ export default {
     showRegister(){
       this.$refs.register.dialogFormVisible = true
     }
-  }
+  },
+  // mounted() {
+  //   alert(process.env.VUE_APP_URL);
+  // },
 };
 </script>
 
