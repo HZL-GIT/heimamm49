@@ -175,11 +175,11 @@ export default {
     submitForm() {
       this.$refs.ruleForm.validate(result => {
         // alert(result);
-        this.$message.success(result + "");
+        // this.$message.success(result + "");
         if (result) {
           register(this.ruleForm).then(res => {
             console.log(res);
-            if (res.data.code == 200) {
+            if (res.code == 200) {
               this.$message.success("注册成功");
               this.dialogFormVisible = false;
             }
@@ -254,7 +254,7 @@ export default {
           phone: this.ruleForm.phone
         }).then(res => {
           console.log(res);
-          this.$message.success(res.data.data.captcha + "");
+          this.$message.success(res.data.captcha + "");
         });
       }
     }
