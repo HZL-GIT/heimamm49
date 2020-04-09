@@ -1,4 +1,4 @@
-import instance from '@/utils/register'
+import instance from '@/utils/request.js'
 function getUserInfo(params) {
     return instance({
         url: '/info',
