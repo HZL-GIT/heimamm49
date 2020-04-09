@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { Message } from 'element-ui';
+import { getToken } from '@/utils/token.js'
 // 自定义实例默认值
 var instance = axios.create({
     baseURL: process.env.VUE_APP_URL,   //设置基地址
@@ -10,6 +11,9 @@ var instance = axios.create({
 // 添加请求拦截器
 instance.interceptors.request.use(function (config) {
     // 在发送请求之前做些什么
+    if (getToken()) {
+        config.headers.token = getToken('token')
+    }
     return config;
 }, function (error) {
     // 对请求错误做些什么
