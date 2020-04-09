@@ -44,16 +44,18 @@
                 <el-input v-model="form.code" prefix-icon="el-icon-key" placeholder="请输入验证码"></el-input>
               </el-col>
               <el-col :span="8">
-                <img src="../../assets/img/key.jpg" class="key" alt />
+                <img :src="code" @click="codeClick" class="key" alt />
               </el-col>
             </el-row>
           </el-form-item>
           <!-- 多选框 -->
-          <el-checkbox v-model="form.isCheck" class="agreement">
-            我已阅读并同意
-            <el-link type="primary" class="vertical">用户协议</el-link>和
-            <el-link type="primary" class="vertical">隐私条款</el-link>
-          </el-checkbox>
+          <el-form-item prop="isCheck">
+            <el-checkbox v-model="form.isCheck" class="agreement">
+              我已阅读并同意
+              <el-link type="primary" class="vertical">用户协议</el-link>和
+              <el-link type="primary" class="vertical">隐私条款</el-link>
+            </el-checkbox>
+          </el-form-item>
           <el-form-item>
             <el-button type="primary" @click="loginClick" class="login-w">登录</el-button>
             <br />
@@ -69,9 +71,11 @@
 </template>
 
 <script>
+import { toLogin } from "@/api/login.js";
 export default {
   data() {
     return {
+      code: process.env.VUE_APP_URL + "/captcha?type=login",
       form: {
         phone: "", //用户手机号
         password: "", //密码框
@@ -79,28 +83,61 @@ export default {
         isCheck: "" //条款勾选框
       },
       rules: {
-        phone: [{ required: true, message: "请输入手机号", trigger: "change" }],
+        phone: [
+          { required: true, message: "请输入手机号", trigger: "change" },
+          {
+            validator: (rule, value, callback) => {
+              let _reg = /^(0|86|17951)?(13[0-9]|15[012356789]|166|17[3678]|18[0-9]|14[57])[0-9]{8}$/;
+              if (_reg.test(value)) {
+                callback();
+              } else {
+                callback("请输入正确的手机号码");
+              }
+            }
+          }
+        ],
         password: [
           { required: true, message: "请输入密码", trigger: "change" },
           { min: 6, max: 12, message: "请输入6到12位的密码", trigger: "change" }
         ],
-        code:[
+        code: [
           { required: true, message: "请输入验证码", trigger: "change" },
           { min: 4, max: 4, message: "请输入正确的验证码", trigger: "change" }
+        ],
+        isCheck: [
+          { required: true, message: "请勾选用户条款", trigger: "change" },
+          {
+            validator: (rule, value, callback) => {
+              if (value == true) {
+                callback();
+              } else {
+                callback("请勾选用户条款");
+              }
+            }
+          }
         ]
       }
     };
   },
   methods: {
+    // 点击登录按钮
     loginClick() {
-      this.$refs.form.validate(result=>{
-        if (result) {
-          this.$message.success(result + '')
+      this.$refs.form.validate(result => {
+        if (result == true) {
+          toLogin(this.form).then(res => {
+            this.$message.success("登录成功");
+            window.console.log('登录信息',res)
+          });
           //result返回的是布尔值，而$message需要的是字符串，所以用 + 号拼接成了字符串
         } else {
-          this.$message.error(result + '')
+          this.$message.error(result + "");
         }
-      })
+      });
+    },
+    // 点击刷新验证码
+    codeClick() {
+      this.code =
+        process.env.VUE_APP_URL + "/captcha?type=login$t=" + Date.now();
     }
   }
 };
