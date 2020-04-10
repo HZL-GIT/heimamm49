@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { Message } from 'element-ui';
-import { getToken } from '@/utils/token.js'
+import { getToken,removeToken } from '@/utils/token.js'
+import router from '@/router/router.js'
 // 自定义实例默认值
 var instance = axios.create({
     baseURL: process.env.VUE_APP_URL,   //设置基地址
@@ -23,9 +24,16 @@ instance.interceptors.request.use(function (config) {
 // 添加响应拦截器
 instance.interceptors.response.use(function (response) {
     // 对响应数据做点什么
+    // 200 响应成功 返回数据
     if (response.data.code == 200) {
         // 因为返回数据里面axios帮我们额外的包了一层data但实际我们基本不用，所以我们把它干掉
         return response.data;
+        // 206 token错误全局处理
+    } else if (response.data.code == 206) {
+        Message.error(response.data.message);// 提示用户错误
+        router.push('/');//不能用this.$router因为this指向不明，而是直接导入route使用
+        removeToken()//清除token
+        return Promise.reject("error");
     } else {
         // 提示用户错误
         // 出错了我们还有必要返回数据出去吗？

@@ -75,7 +75,7 @@
 <script>
 import register from "@/view/login/register";
 import { toLogin } from "@/api/login.js";
-import { saveToken } from "@/utils/token.js";
+import { saveToken,getToken } from "@/utils/token.js";
 export default {
   components: {
     register
@@ -126,6 +126,13 @@ export default {
       }
     };
   },
+  created() {
+    // 一进入页面就判断有无token
+    // 如果有token，则直接跳转到首页。   没有token的处理在request响应拦截已做全局处理
+    if (getToken()) {
+      this.$router.push('/home');
+    }
+  },
   methods: {
     // 点击登录按钮
     loginClick() {
@@ -134,6 +141,7 @@ export default {
           toLogin(this.form).then(res => {
             this.$message.success("登录成功");
             saveToken(res.data.token);//保存用户登录token信息
+            this.$router.push('/home');//登录成功跳转首页
             window.console.log("登录信息", res);
           });
           //result返回的是布尔值，而$message需要的是字符串，所以用 + 号拼接成了字符串
