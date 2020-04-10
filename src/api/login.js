@@ -1,4 +1,4 @@
-import instance from '@/utils/register'
+import instance from '@/utils/request.js'
 function toLogin(data) {
     return instance({
         url: '/login',
