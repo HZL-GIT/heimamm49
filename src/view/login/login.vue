@@ -75,11 +75,7 @@
 <script>
 import register from "@/view/login/register";
 import { toLogin } from "@/api/login.js";
-<<<<<<< HEAD
-import { saveToken } from "@/utils/token.js";
-=======
 import { saveToken,getToken } from "@/utils/token.js";
->>>>>>> home
 export default {
   components: {
     register
@@ -143,12 +139,9 @@ export default {
       this.$refs.form.validate(result => {
         if (result == true) {
           toLogin(this.form).then(res => {
-<<<<<<< HEAD
-=======
             this.$message.success("登录成功");
             saveToken(res.data.token);//保存用户登录token信息
             this.$router.push('/home');//登录成功跳转首页
->>>>>>> home
             window.console.log("登录信息", res);
             saveToken(res.data.token);
             this.$message.success("登录成功");
