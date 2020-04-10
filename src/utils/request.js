@@ -1,3 +1,4 @@
+// 配置axios实例默认为instance，并处理instance即axios请求与响应拦截器
 import axios from 'axios';
 import { Message } from 'element-ui';
 import { getToken,removeToken } from '@/utils/token.js'
