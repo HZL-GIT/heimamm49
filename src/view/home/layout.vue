@@ -7,8 +7,8 @@
         <span class="title">黑马面面</span>
       </div>
       <div class="right">
-        <img class="avatar" :src="uersInfo.avatar" alt />
-        <span class="name">{{uersInfo.username}}，您好</span>
+        <img class="avatar" :src="$store.state.userInfo.avatar" alt />
+        <span class="name">{{$store.state.userInfo.username}}，您好</span>
         <el-button type="primary" @click="exit">退出</el-button>
       </div>
     </el-header>
@@ -64,14 +64,15 @@
         </el-menu>
       </el-aside>
       <!-- 导航菜单 结束 -->
+
       <!-- 右侧主体区域 开始 -->
       <!-- 
           1:在相应位置加一个routerview 
           2:配制相应路由,在相应的路由配制里面加一个children:[//这里面又可以写相应的子集配制了]
               仿树形结构 
-              
       -->
       <el-main>
+        <!-- 左侧导航列表内容输出区域 -->
         <router-view></router-view>
       </el-main>
     </el-container>
@@ -85,12 +86,13 @@ export default {
   data() {
     return {
       uersInfo: "",
-      collapse: false, //控制左侧列表显示与否
-      
+      collapse: false //控制左侧列表显示与否
     };
   },
   created() {
-    // 判断用户有无登录，没登录则直接返回到登录页，不再执行后面的代码
+    // 查看当前页相对路径，即为this.$route里的fullPath
+    // window.console.log("当前路由信息",this.$route);
+    // 进入当前页，判断用户有无登录，没登录则直接返回到登录页，不再执行后面的代码
     if (!getToken()) {
       this.$router.push("/");
       return;
@@ -98,10 +100,11 @@ export default {
     // 获取用户信息
     getUserInfo().then(res => {
       console.log(res);
-      this.uersInfo = res.data;
+      this.userInfo = res.data;
       // 用户头像返回的是相对地址，需要加上基地址才能正常显示头像图片
-      this.uersInfo.avatar =
-        process.env.VUE_APP_URL + "/" + this.uersInfo.avatar;
+      this.userInfo.avatar =
+        process.env.VUE_APP_URL + "/" + this.userInfo.avatar;
+        this.$store.state.userInfo = this.userInfo
     });
   },
   methods: {
@@ -117,7 +120,7 @@ export default {
           removeToken();
           this.$router.push("/");
         });
-      });
+      }); //在这里取消按钮点击后不做任何操作，故省略未写
     }
   }
 };

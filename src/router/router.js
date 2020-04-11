@@ -20,11 +20,26 @@ const router = new VouRouter({
             redirect: '/home/subject',
             component: Layout,
             children: [
-                { path: 'chart', component: chart },
-                { path: 'userList', component: userList },
-                { path: 'question', component: question },
-                { path: 'business', component: business },
-                { path: 'subject', component: subject }
+                {
+                    path: 'chart', component: chart,
+                    meta: { title: '数据概览' }
+                },
+                {
+                    path: 'userList', component: userList,
+                    meta: { title: '用户列表' }
+                },
+                {
+                    path: 'question', component: question,
+                    meta: { title: '题库列表' }
+                },
+                {
+                    path: 'business', component: business,
+                    meta: { title: '企业列表' }
+                },
+                {
+                    path: 'subject', component: subject,
+                    meta: { title: '学科列表' }
+                }
             ],
         },
     ],
@@ -33,7 +48,7 @@ import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 //路由进入拦截
 router.beforeEach((to, from, next) => {
-    NProgress.start()
+    NProgress.start()//进度条（插件）开始
     next()
     // window.console.log("to:", to)
     // window.console.log("from:", from)
@@ -52,9 +67,13 @@ router.beforeEach((to, from, next) => {
     //如果next直接写死跳某地址如next("/")而没有next()它会形成了一个死循环，如从/到/它又走到了beforeEach里，又开始执行beforeEach,到了beforeEach又是从/到/形成死微循环,只有next()它就不会再跑到beforeEach里面来
 })
 
-router.afterEach((to,from) => {
+router.afterEach((to, from) => {
     //路由进入后的处理
-    NProgress.done()
+    // 根据路由元信息修改网页标题
+    // window.console.log('路由元信息：',this.$route)
+    document.title = to.meta.title // to:要去的路由的$route
+
+    NProgress.done()//进度条（插件）结束
     window.console.log(from)
 })
 export default router;
