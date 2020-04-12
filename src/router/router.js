@@ -46,7 +46,7 @@ const router = new VouRouter({
 });
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
-//路由进入拦截
+//路由进入拦截   路由前守卫
 router.beforeEach((to, from, next) => {
     NProgress.start()//进度条（插件）开始
     next()
@@ -68,7 +68,7 @@ router.beforeEach((to, from, next) => {
 })
 
 router.afterEach((to, from) => {
-    //路由进入后的处理
+    //路由进入后的处理    路由后守卫
     // 根据路由元信息修改网页标题
     // window.console.log('路由元信息：',this.$route)
     document.title = to.meta.title // to:要去的路由的$route

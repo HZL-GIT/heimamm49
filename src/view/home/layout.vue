@@ -71,7 +71,7 @@
           2:配制相应路由,在相应的路由配制里面加一个children:[//这里面又可以写相应的子集配制了]
               仿树形结构 
       -->
-      <el-main>
+      <el-main class="main">
         <!-- 左侧导航列表内容输出区域 -->
         <router-view></router-view>
       </el-main>
@@ -171,6 +171,9 @@ export default {
   // 控制左侧列表显示与否的动画
   .menuTransition:not(.el-menu--collapse) {
     width: 200px;
+  }
+  .main {
+    background-color: #E8E9EC;
   }
 }
 </style>
