@@ -9,9 +9,9 @@ import question from '@/view/home/question/question.vue'
 import business from '@/view/home/business/business.vue'
 import subject from '@/view/home/subject/subject.vue'
 // 导入路由
-import VouRouter from 'vue-router';
-Vue.use(VouRouter);
-const router = new VouRouter({
+import VueRouter from 'vue-router';
+Vue.use(VueRouter);
+const router = new VueRouter({
     routes: [
         { path: '/', component: Login },
         {
@@ -44,7 +44,15 @@ const router = new VouRouter({
         },
     ],
 });
-import NProgress from 'nprogress'
+
+// 特殊处理：为路由管理器的push方法做一次改造，加入 catch 异常处理
+// 不加会出现 重复请求 就会 报错 的情况
+let oldPush = VueRouter.prototype.push;
+VueRouter.prototype.push = function (url) {
+  return oldPush.call(this, url).catch(err => err)
+}
+
+import NProgress from 'nprogress'//加载进度条的插件
 import 'nprogress/nprogress.css'
 //路由进入拦截   路由前守卫
 router.beforeEach((to, from, next) => {

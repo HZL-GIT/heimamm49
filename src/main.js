@@ -10,6 +10,7 @@ import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 // 注册element-ui
 Vue.use(ElementUI);
+
 // 导入 vuex 
 import store from '@/store/index.js'
 

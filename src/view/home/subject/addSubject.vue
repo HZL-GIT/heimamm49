@@ -77,17 +77,19 @@ export default {
         // 同一确认按钮的复用处理
         if (this.mode == "add") {
           //当mode为add时是新增
-          addSubjectData(this.form).then(() => {
-            // 新增成功处理
-            this.$message.success("新增成功"); //提示用户新增成功
-            this.dialogFormVisible = false; //关闭对话框
-            // this.$parent.search(); //新增完成，重新刷新数据
-            //  子调用父方法        emit
-            //  1：在父组件 引入 的子组件身上绑定相应方法   
-            //                      <子组件  @子组件方法名="父组件方法">
-            //  2：子组件触发该方法   this.$emit("子组件方法名",可以写参数)
-            this.$emit("addBtn");
-          });
+          addSubjectData(this.form)
+            .then(() => {
+              // 新增成功处理
+              this.$message.success("新增成功"); //提示用户新增成功
+              this.dialogFormVisible = false; //关闭对话框
+              // this.$parent.search(); //新增完成，重新刷新数据
+              //  子调用父方法        emit
+              //  1：在父组件 引入 的子组件身上绑定相应方法
+              //                      <子组件  @子组件方法名="父组件方法">
+              //  2：子组件触发该方法   this.$emit("子组件方法名",可以写参数)
+              this.$emit("addBtn");
+            })
+            .catch(() => {});
         } else {
           //在父组件编写点击编辑按钮修改mode值为edit，
           editSubjectData(this.form).then(() => {

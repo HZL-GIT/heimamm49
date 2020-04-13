@@ -119,7 +119,10 @@ export default {
         exitLogin().then(() => {
           removeToken();
           this.$router.push("/");
+          this.$message.success('已退出')
         });
+      }).catch(()=>{
+        this.$message('已取消')
       }); //在这里取消按钮点击后不做任何操作，故省略未写
     }
   }
