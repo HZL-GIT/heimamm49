@@ -90,7 +90,7 @@
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
           :current-page="pagination.currentPage"
-          :page-sizes="[3, 6, 9, 12]"
+          :page-sizes="[4, 8, 12, 16]"
           :page-size="pagination.pageSize"
           layout="total, sizes, prev, pager, next, jumper"
           :total="pagination.total"
@@ -99,7 +99,7 @@
       </el-card>
     </div>
     <!-- 新增学科 的对话框 子组件 -->
-    <addSubject ref="addSubject" :mode="mode" @addBtn='search'></addSubject>
+    <addSubject ref="addSubject" :mode="mode" @addBtn="search"></addSubject>
   </div>
 </template>
 
@@ -122,7 +122,7 @@ export default {
       // 分页
       pagination: {
         currentPage: 1, //当前页数
-        pageSize: 3, //每页条数
+        pageSize: 4, //每页条数
         total: 50 //总条数
       },
       form: {
@@ -138,6 +138,21 @@ export default {
     this.getData();
   },
   methods: {
+    // 获取学科列表信息
+    getData() {
+      let _params = {
+        //获取学科列表接口所需要的参数。当然，不传就是全按照默认值请求
+        page: this.pagination.currentPage, //页码
+        limit: this.pagination.pageSize, //页容量
+        // 搜索框的所有form数据
+        ...this.form // ...为ES6语法，拓展运算符，遍历   与表单的ref值无关
+      };
+      getSubjectData(_params).then(res => {
+        window.console.log(res);
+        this.tableData = res.data.items; //将返回的数据存起来
+        this.pagination.total = res.data.pagination.total; //设置返回数据的总的条数
+      });
+    },
     // 点击搜索
     search() {
       this.pagination.currentPage = 1; //修改当前页为第一页
@@ -149,12 +164,13 @@ export default {
       // 1:它使用前提是参数都有相应的prop绑定
       //2:在form表单上定义一个ref=值   通过ref调用resetFields
       this.$refs.form.resetFields(); //清除表单数据
-      this.search(); //重新按照默认的来搜索
+      this.search(); //重新刷新，即重新按照空值、默认的来搜索
     },
     //  点击新增按钮
     add() {
       this.mode = "add";
       this.$refs.addSubject.form = {
+        //将新增框的表单清空
         rid: "", //学科编号
         name: "", //学科名称
         short_name: "", //学科简称
@@ -162,19 +178,6 @@ export default {
         remark: "" //备注
       };
       this.$refs.addSubject.dialogFormVisible = true; //显示对话框
-    },
-    // 获取学科列表信息
-    getData() {
-      let _params = {
-        page: this.pagination.currentPage, //页码
-        limit: this.pagination.pageSize, //页容量
-        ...this.form // ...为ES6语法，拓展运算符，遍历   与表单的ref值无关
-      };
-      getSubjectData(_params).then(res => {
-        window.console.log(res);
-        this.tableData = res.data.items;
-        this.pagination.total = res.data.pagination.total;
-      });
     },
     // 点击编辑按钮  由于编辑与新增的弹出对话框是一样的，所以复用
     edit(row) {
@@ -193,7 +196,7 @@ export default {
     },
     // 点击删除  删除学科
     del(id) {
-      this.$confirm("此操作将永久删除该文件, 是否继续?", "提示", {
+      this.$confirm("此操作将永久删除该学科, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
@@ -202,13 +205,13 @@ export default {
           //点击确认
           // console.log(id);
           delSubjectData({ id: id }).then(() => {
-            this.$message.success("删除成功");
+            this.$message.success("删除成功");//$message写法 1
             this.search();
           });
         })
         .catch(() => {
           //点击取消
-          this.$message({
+          this.$message({//$message写法 2
             type: "info",
             message: "已取消删除"
           });
@@ -220,7 +223,7 @@ export default {
     handleSizeChange(val) {
       // console.log(`每页 ${val} 条`);
       this.pagination.pageSize = val; //当前页容量为val
-      this.pagination.currentPage = 1;
+      this.pagination.currentPage = 1; //当页容量发生改变时，设置显示页码第一页
       this.getData();
     },
     // 页码改变时

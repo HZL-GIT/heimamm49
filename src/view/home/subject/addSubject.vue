@@ -54,9 +54,9 @@ export default {
     };
   },
   watch: {
+    //  侦听dialogFormVisible 即对话框的显示与否
     dialogFormVisible(newVal) {
-      if (newVal == false) {
-        // this.$refs.form.clearValidate();
+      if (newVal == false) {//如果对话框关闭，则清空表单
         //   清空表单  注意：需要清空的项一定要在el-form-item上加上prop绑定相应字段
         this.$refs.form.resetFields();
       }
