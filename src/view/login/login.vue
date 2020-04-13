@@ -143,8 +143,6 @@ export default {
             saveToken(res.data.token);//保存用户登录token信息
             this.$router.push('/home');//登录成功跳转首页
             window.console.log("登录信息", res);
-            saveToken(res.data.token);
-            this.$message.success("登录成功");
           });
           //result返回的是布尔值，而$message需要的是字符串，所以用 + 号拼接成了字符串
         } else {

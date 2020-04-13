@@ -165,8 +165,8 @@ export default {
   watch: {
     dialogFormVisible(newVal) {
       if (newVal == false) {
-        this.$refs.ruleForm.resetFields();
-        this.imageUrl = "";
+        this.$refs.ruleForm.resetFields();//清空表单
+        this.imageUrl = "";//清空头像框
       }
     }
   },
