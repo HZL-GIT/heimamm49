@@ -13,11 +13,14 @@ import VueRouter from 'vue-router';
 Vue.use(VueRouter);
 const router = new VueRouter({
     routes: [
-        { path: '/', component: Login },
+        {
+            path: '/', component: Login,
+            meta: { title: '黑马面面' }
+        },
         {
             path: '/home',
             //利用路由重定向，实现页面一进入就默认加载某个组件
-            redirect: '/home/subject',
+            redirect: '/home/business',
             component: Layout,
             children: [
                 {
@@ -49,7 +52,7 @@ const router = new VueRouter({
 // 不加会出现 重复请求 就会 报错 的情况
 let oldPush = VueRouter.prototype.push;
 VueRouter.prototype.push = function (url) {
-  return oldPush.call(this, url).catch(err => err)
+    return oldPush.call(this, url).catch(err => err)
 }
 
 import NProgress from 'nprogress'//加载进度条的插件

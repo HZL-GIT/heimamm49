@@ -143,7 +143,7 @@ export default {
             saveToken(res.data.token);//保存用户登录token信息
             this.$router.push('/home');//登录成功跳转首页
             window.console.log("登录信息", res);
-          });
+          }).catch(()=>{});
           //result返回的是布尔值，而$message需要的是字符串，所以用 + 号拼接成了字符串
         } else {
           this.$message.error(result + "");
@@ -157,7 +157,7 @@ export default {
     // 点击刷新验证码
     codeClick() {
       this.code =
-        process.env.VUE_APP_URL + "/captcha?type=login$t=" + Date.now();
+        process.env.VUE_APP_URL + "/captcha?type=login&t=" + Date.now();
     }
     // mounted() {
     //   alert(process.env.VUE_APP_URL);

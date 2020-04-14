@@ -41,7 +41,7 @@
     <div class="main">
       <el-card>
         <el-table :data="tableData">
-          <el-table-column label="序号" width="60">
+          <el-table-column label="序号" width="60px">
             <!-- 
               序号优化
               真实序号 = （当前页-1）*页容量 + 当前序号(从0开始的)+1
