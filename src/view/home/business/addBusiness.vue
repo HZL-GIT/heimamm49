@@ -1,7 +1,7 @@
 <template>
   <div class="addBusiness">
     <el-dialog :visible.sync="dialogFormVisible" width="600px">
-      <div slot="title" class="title">新增企业</div>
+      <div slot="title" class="title">{{this.mode=="add"?'新增企业':'编辑企业'}}</div>
       <el-form :model="form" :rules="rules" label-width="80px" ref="form">
         <el-form-item label="企业编号" prop="eid">
           <el-input v-model="form.eid"></el-input>
@@ -32,10 +32,10 @@ import { addBusinessData, editlBusinessData } from "@/api/business.js";
 export default {
   props: {
     mode: {
-      type: String,
+      type: String
     }
   },
-//   props:['mode'],
+  //   props:['mode'],
   data() {
     return {
       dialogFormVisible: false,
@@ -62,19 +62,23 @@ export default {
       this.$refs.form.validate(result => {
         if (result) {
           if (this.mode == "add") {
-            addBusinessData(this.form).then(() => {
-              this.$message.success("添加成功");
-              this.dialogFormVisible = false; //关闭对话框
-              this.$parent.search(); //方法一 利用 $parent
-              //   this.$emit("submit"); //方法二  利用emit  需要先在父组件的子组件标签里定义 @submit="search"
-            });
+            addBusinessData(this.form)
+              .then(() => {
+                this.$message.success("添加成功");
+                this.dialogFormVisible = false; //关闭对话框
+                this.$parent.search(); //方法一 利用 $parent
+                //   this.$emit("submit"); //方法二  利用emit  需要先在父组件的子组件标签里定义 @submit="search"
+              })
+              .catch(() => {});
           } else {
-            editlBusinessData(this.form).then(() => {
-              this.$message.success("编辑成功");
-              this.dialogFormVisible = false;
-              // this.$parent.search();//方法一 利用 $parent
-              this.$emit("submit"); //方法二  利用emit  需要先在父组件的子组件标签里定义 @submit="search"
-            });
+            editlBusinessData(this.form)
+              .then(() => {
+                this.$message.success("编辑成功");
+                this.dialogFormVisible = false;
+                // this.$parent.search();//方法一 利用 $parent
+                this.$emit("submit"); //方法二  利用emit  需要先在父组件的子组件标签里定义 @submit="search"
+              })
+              .catch(() => {});
           }
         }
       });
@@ -87,6 +91,9 @@ export default {
 .addBusiness {
   .el-dialog__header {
     padding: 0;
+  }
+  .el-dialog__headerbtn .el-dialog__close {
+    color: #fff;
   }
   .title {
     height: 53px;
