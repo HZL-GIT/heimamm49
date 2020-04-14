@@ -216,6 +216,7 @@ export default {
     handleSizeChange(val) {
       // console.log(`每页 ${val} 条`);
       this.pagination.pageSize = val;
+      //注意 要先回到第一页，再去执行数据的请求
       this.pagination.currentPage = 1; //避免当页码在后面，修改更大页容量时出现顿闪暂无数据的情况
       this.getData();
       // this.search()//与上两句一个意思

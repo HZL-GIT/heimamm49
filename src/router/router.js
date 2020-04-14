@@ -20,7 +20,7 @@ const router = new VueRouter({
         {
             path: '/home',
             //利用路由重定向，实现页面一进入就默认加载某个组件
-            redirect: '/home/business',
+            redirect: '/home/userList',
             component: Layout,
             children: [
                 {
