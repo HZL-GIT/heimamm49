@@ -14,15 +14,26 @@
         </el-form-item>
         <el-form-item label="角色" prop="role_id">
           <el-select placeholder="请选择角色" v-model="form.role_id">
-            <el-option label="管理员" value="2"></el-option>
-            <el-option label="老师" value="3"></el-option>
-            <el-option label="学生" value="4"></el-option>
+            <!-- 
+              由于 role_id 传过来的 value 值是number类型，而通过键值对得到的 key 值是string类型
+              所以需要在 key 前加上 + 号，实现隐式转换，转成number类型
+            -->
+            <el-option
+              v-for="(value,key, index) in $store.state.roleObj"
+              :key="index"
+              :value="+key"
+              :label="value"
+            ></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="状态" prop="status">
           <el-select placeholder="请选择状态" v-model.trim="form.status">
-            <el-option label="启用" value="1"></el-option>
-            <el-option label="禁用" value="0"></el-option>
+            <!-- 
+              value='1' 中的 1 是字符串类型，而编辑时通过row传过来的数据是 数字类型 
+              所以也需要转车 数字类型 才行  故而写为   :value="1"
+            -->
+            <el-option label="启用" :value="1"></el-option>
+            <el-option label="禁用" :value="0"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="用户备注" prop="remark">
@@ -59,10 +70,19 @@ export default {
       },
       rules: {
         username: [
-          { required: true, message: "请输入用户名", trigger: "blur" }
+          { required: true, message: "请输入用户名", trigger: "change" }
         ],
         email: [
-          { required: true, message: "请输入邮箱", trigger: "blur" },
+          { required: true, message: "请输入邮箱", trigger: "change" },
+          // 自定义表单验证
+          /*
+          validator:(rule,value,callback)=>{
+            rule:规则,
+            value:当前 需要验证项的值 
+            callback()  这样就是正常验证通过
+            callback("错误信息") 表示 不验证通过，同时报出内面的错误信息
+          }
+          */
           {
             validator: (rule, value, callback) => {
               let _reg = /\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/;
@@ -71,11 +91,12 @@ export default {
               } else {
                 callback("请输入正确的邮箱地址");
               }
-            }
+            },
+            trigger: "change"
           }
         ],
         phone: [
-          { required: true, message: "请输入电话", trigger: "blur" },
+          { required: true, message: "请输入电话", trigger: "change" },
           {
             validator: (rule, value, callback) => {
               let _reg = /^(0|86|17951)?(13[0-9]|15[012356789]|166|17[3678]|18[0-9]|14[57])[0-9]{8}$/;
@@ -84,19 +105,24 @@ export default {
               } else {
                 callback("请输入正确的手机号码");
               }
-            }
+            },
+            trigger: "change"
           }
         ],
-        role_id: [{ required: true, message: "请输入角色", trigger: "blur" }]
+        role_id: [{ required: true, message: "请输入角色", trigger: "change" }]
       }
     };
   },
-  watch: {//侦听器
-    // 当mode改变的时候清空表单
-    mode() {
-      this.$nextTick(() => {
-        this.$refs.form.clearValidate();
-      });
+  watch: {
+    // 侦听器
+    // 当dialogFormVisible 为true 即对话框为打开状态时，先将表单的验证给清除掉，否则会出现验证报红问题
+    // 并且由于表单是后面打开对话框才加载出来的，所以需要利用 $nextTick 进行延时操作
+    dialogFormVisible(newValue) {
+      if (newValue == true) {
+        this.$nextTick(() => {
+          this.$refs.form.clearValidate();
+        });
+      }
     }
   },
   methods: {

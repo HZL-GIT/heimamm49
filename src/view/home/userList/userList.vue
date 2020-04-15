@@ -10,9 +10,13 @@
         </el-form-item>
         <el-form-item label="角色" prop="role_id">
           <el-select class="setWidth" placeholder="请选择状态" v-model="form.role_id">
-            <el-option label="管理员" value="2"></el-option>
-            <el-option label="老师" value="3"></el-option>
-            <el-option label="学生" value="4"></el-option>
+            <!-- 通过遍历vuex中添加的共享数据绑定 来取到需要的 角色键值对-->
+            <el-option
+              v-for="(value,key, index) in $store.state.roleObj"
+              :key="index"
+              :value="key"
+              :label="value"
+            ></el-option>
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -24,7 +28,7 @@
     </el-card>
     <!-- 用户列表详情 -->
     <el-card class="main1">
-      <el-table :data="userList">
+      <el-table :data="userList" :border="true"><!--border 加边框-->
         <el-table-column label="序号" width="60px">
           <template
             slot-scope="scope"
@@ -37,7 +41,7 @@
         <el-table-column label="备注" width="120px" prop="remark"></el-table-column>
         <el-table-column label="状态" width="70px" prop="status">
           <template slot-scope="scope">
-            <div :class="{red:scope.row.status ==1}">{{scope.row.status ==0?'启用':'禁用'}}</div>
+            <div :class="{red:scope.row.status ==0}">{{scope.row.status ==1?'启用':'禁用'}}</div>
           </template>
         </el-table-column>
         <el-table-column label="操作">
@@ -45,8 +49,8 @@
             <el-button @click="edit(scope.row)" type="primary">编辑</el-button>
             <el-button
               @click="setStatus(scope.row.id)"
-              :type="scope.row.status ==1?'success':'warning'"
-            >{{scope.row.status ==1?'启用':'禁用'}}</el-button>
+              :type="scope.row.status ==0?'success':'warning'"
+            >{{scope.row.status ==0?'启用':'禁用'}}</el-button>
             <el-button @click="del(scope.row.id)" type="danger">删除</el-button>
           </template>
         </el-table-column>

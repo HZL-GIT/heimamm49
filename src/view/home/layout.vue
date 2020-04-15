@@ -16,9 +16,10 @@
       <!-- 导航菜单 开始 -->
       <!-- 菜单组件
         el-menu   default-active默认打开哪一项对应下面子项的index值
-        el-menu-item  它就是菜单的每一项  它里面的index就表示 当前项的值，与default-active对应
+        el-menu-item  它就是菜单的每一项  它里面的index就表示 当前项的值，与default-active对应   当前激活菜单的 index
         i表示 图标处理
         slot="title"  重写标题
+        router  当值它的为 true 时表示使用 vue-router 的模式，启用该模式会在激活导航时以 el-menu-item里面的 index 作为 path 进行路由跳转
       -->
       <!-- 
         collapse控制菜单是否折叠 
@@ -41,7 +42,16 @@
           :collapse="collapse"
           class="menuTransition"
         >
-          <el-menu-item index="/home/chart">
+          <el-menu-item
+            :index="'/home/'+item.path"
+            v-for="(item, index) in $router.options.routes[1].children"
+            :key="index"
+            v-show="item.meta.rules.includes($store.state.role)"
+          >
+            <i :class="item.meta.icon"></i>
+            <span slot="title">{{item.meta.title}}</span>
+          </el-menu-item>
+          <!-- <el-menu-item index="/home/chart">
             <i class="el-icon-pie-chart"></i>
             <span slot="title">数据概览</span>
           </el-menu-item>
@@ -60,7 +70,7 @@
           <el-menu-item index="/home/subject">
             <i class="el-icon-office-building"></i>
             <span slot="title">学科列表</span>
-          </el-menu-item>
+          </el-menu-item>-->
         </el-menu>
       </el-aside>
       <!-- 导航菜单 结束 -->
@@ -91,7 +101,8 @@ export default {
   },
   created() {
     // 查看当前页相对路径，即为this.$route里的fullPath
-    // window.console.log("当前路由信息",this.$route);
+    window.console.log("当前路由信息",this.$route);
+    console.log('路由的所有信息',this.$router);
     // 进入当前页，判断用户有无登录，没登录则直接返回到登录页，不再执行后面的代码
     if (!getToken()) {
       this.$router.push("/");
@@ -99,12 +110,41 @@ export default {
     }
     // 获取用户信息
     getUserInfo().then(res => {
-      console.log(res);
+      console.log("用户信息", res);
       this.userInfo = res.data;
       // 用户头像返回的是相对地址，需要加上基地址才能正常显示头像图片
       this.userInfo.avatar =
         process.env.VUE_APP_URL + "/" + this.userInfo.avatar;
-        this.$store.state.userInfo = this.userInfo
+      // 由于用户信息在多个模块中使用，所以将其存到vuex共享数据管理中去
+      this.$store.state.userInfo = this.userInfo;
+
+      // 判断用户有无权限处理
+      /* 
+      用户权限判断小结
+      1.获取到登录者的信息后，判断登录者是的账号状态(status)是否为启用(1)状态，如果是禁用(0)状态就提示用户，再清除他的token并退回到登录界面
+      2.在路由元信息(meta)中添加用户角色规则(rules)，规则里定义好谁可以访问该组件/页面
+      3.如果账号状态为启用状态，即用户可以成功登录。则判断用户是否有权限访问组件/页面，通过 this.$router.meta.xxx访问到路由元信息中的rules，用includes()方法判断在用户登录信息中的角色是否为该组件/页面定义的路由元信息的角色规则所包含的，包含则可以访问，不包含则提示，并清除token、回退登录页
+      4.由于在上一步的权限判断是在created中定义的，他只会执行一次。所以在用户登录之后，还是可以访问不属于他权限的内容，所以，需要在路由前守卫中再次进行权限判断，判断前，先在获取用户信息的时候，将用户角色信息保存到vuex中新定义的role上，便于使用
+      */
+      // 将获取用户信息中得到的角色信息保存到vuex中的role上
+      this.$store.state.role = res.data.role;
+      // 先对用户账号的状态进行判断 即用户状态是否为启用  启用为：1   禁用为：0
+      if (res.data.status == 0) {
+        // status 为 0 表示已被禁用
+        this.$message.warning("您的账号已被禁用，请联系管理员");
+        removeToken(); // 清除token
+        this.$router.push("/"); // 跳转到登录页面
+      } else {//进到这里表示用户账号状态为启用，能登录进来  此时再去判断用户是否有权限查看某些页面
+        console.log("当前路由元信息", this.$route.meta);
+        // !this.$route.meta.rules.includes(res.data.role) 当前的登录用户的角色信息与路由元信息中该页面的角色规则不符    !取反
+        // includes() 判断数组或字符串是否包含某值，包含返回 true 
+        // includes(res.data.role) 返回值是一个true或者false
+        if (!this.$route.meta.rules.includes(res.data.role)) {
+          this.$message.warning("您无权访问该页面");
+          removeToken(); // 清除token
+          this.$router.push("/");
+        }
+      }
     });
   },
   methods: {
@@ -114,16 +154,18 @@ export default {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning" // type：warning success error
-      }).then(() => {
-        // .then是点击 确定后的回调函数
-        exitLogin().then(() => {
-          removeToken();
-          this.$router.push("/");
-          this.$message.success('已退出')
-        });
-      }).catch(()=>{
-        this.$message('已取消')
-      }); //在这里取消按钮点击后不做任何操作，故省略未写
+      })
+        .then(() => {
+          // .then是点击 确定后的回调函数
+          exitLogin().then(() => {
+            removeToken();
+            this.$router.push("/");
+            this.$message.success("已退出");
+          });
+        })
+        .catch(() => {
+          this.$message("已取消");
+        }); //在这里取消按钮点击后不做任何操作，故省略未写
     }
   }
 };
@@ -176,7 +218,7 @@ export default {
     width: 200px;
   }
   .main {
-    background-color: #E8E9EC;
+    background-color: #e8e9ec;
   }
 }
 </style>

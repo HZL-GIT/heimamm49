@@ -14,34 +14,62 @@ Vue.use(VueRouter);
 const router = new VueRouter({
     routes: [
         {
-            path: '/', component: Login,
-            meta: { title: '黑马面面' }
+            path: '/',//路径地址
+            component: Login,//组件名
+            meta: {//路由元信息 meta  通过this.$router.meta.XXX进行访问
+                title: '登录',
+                rules: ['超级管理员', '管理员', '老师', '学生']//定义角色规则，用于判断登录的用户角色是否有权限进行访问
+            }
         },
         {
             path: '/home',
             //利用路由重定向，实现页面一进入就默认加载某个组件
-            redirect: '/home/userList',
+            redirect: '/home/subject',
             component: Layout,
             children: [
                 {
-                    path: 'chart', component: chart,
-                    meta: { title: '数据概览' }
+                    path: 'chart',
+                    component: chart,
+                    meta: {
+                        title: '数据概览',
+                        rules: ['超级管理员', '管理员', '老师'],
+                        icon: 'el-icon-pie-chart'//定义他们的字体图标，用于v-for循环，根据权限进行左侧列表显示与否时的字体图标使用
+                    }
                 },
                 {
                     path: 'userList', component: userList,
-                    meta: { title: '用户列表' }
+                    meta: {
+                        title: '用户列表',
+                        rules: ['超级管理员', '管理员'],
+                        icon: 'el-icon-user'
+                    }
                 },
                 {
-                    path: 'question', component: question,
-                    meta: { title: '题库列表' }
+                    path: 'question',
+                    component: question,
+                    meta: {
+                        title: '题库列表',
+                        rules: ['超级管理员', '管理员', '老师'],
+                        icon: 'el-icon-edit-outline'
+                    }
                 },
                 {
-                    path: 'business', component: business,
-                    meta: { title: '企业列表' }
+                    path: 'business',
+                    component: business,
+                    meta: {
+                        title: '企业列表',
+                        rules: ['超级管理员', '管理员', '老师'],
+                        icon: 'el-icon-office-building'
+                    }
                 },
                 {
-                    path: 'subject', component: subject,
-                    meta: { title: '学科列表' }
+                    path: 'subject',
+                    component: subject,
+                    meta: {
+                        title: '学科列表',
+                        rules: ['超级管理员', '管理员', '老师', '学生'],
+                        icon: 'el-icon-notebook-2'
+                    }
                 }
             ],
         },
@@ -56,11 +84,22 @@ VueRouter.prototype.push = function (url) {
 }
 
 import NProgress from 'nprogress'//加载进度条的插件
-import 'nprogress/nprogress.css'
+import 'nprogress/nprogress.css'//加载进度条的插件的样式
+import { Message } from 'element-ui';
+import store from '@/store/index.js'
+import { removeToken } from '@/utils/token.js'
 //路由进入拦截   路由前守卫
 router.beforeEach((to, from, next) => {
     NProgress.start()//进度条（插件）开始
-    next()
+    // 判断用户权限
+    // 再次判断权限，以防止用户进入页面之后，再点击其他组件还可以进行访问（因为前面在layout中的判断是在created里面进行的，生命周期created钩子只会执行一次）
+    if (to.meta.rules.includes(store.state.role)) {
+        next()
+    } else {
+        Message.warning('您无权访问该页面')
+        removeToken()
+        next('/')
+    }
     // window.console.log("to:", to)
     // window.console.log("from:", from)
     // if (to.fullPath == "/") {
