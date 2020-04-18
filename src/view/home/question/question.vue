@@ -63,9 +63,15 @@
           <el-col :span="5">
             <el-form-item label="难度" prop="difficulty">
               <el-select v-model="form.difficulty" placeholder="请选择难度">
-                <el-option label="简单" :value="1"></el-option>
+                <el-option
+                  v-for="(value,key, index) in difficultyObj"
+                  :key="index"
+                  :label="value"
+                  :value="+key"
+                ></el-option>
+                <!-- <el-option label="简单" :value="1"></el-option>
                 <el-option label="一般" :value="2"></el-option>
-                <el-option label="困难" :value="3"></el-option>
+                <el-option label="困难" :value="3"></el-option> -->
               </el-select>
             </el-form-item>
           </el-col>
@@ -165,6 +171,7 @@
       :stepObj="stepObj"
       :typeObj="typeObj"
       :businessList="businessList"
+      :difficultyObj="difficultyObj"
     ></addQuestion>
   </div>
 </template>
@@ -199,6 +206,7 @@ export default {
       },
       stepObj: { 1: "初级", 2: "中级", 3: "高级" }, //阶段
       typeObj: { 1: "单选", 2: "多选", 3: "简答" }, //题型
+      difficultyObj: { 1: "简单", 2: "一般", 3: "困难" }, //难度
       subjectList: [], //学科列表
       businessList: [] //企业列表
     };
