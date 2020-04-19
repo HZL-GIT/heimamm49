@@ -71,7 +71,7 @@
                 ></el-option>
                 <!-- <el-option label="简单" :value="1"></el-option>
                 <el-option label="一般" :value="2"></el-option>
-                <el-option label="困难" :value="3"></el-option> -->
+                <el-option label="困难" :value="3"></el-option>-->
               </el-select>
             </el-form-item>
           </el-col>
@@ -149,8 +149,9 @@
             <el-button type="primary">编辑</el-button>
             <el-button
               :type="scope.row.status == 1?'warning':'success'"
+              @click="setStatus(scope.row.id)"
             >{{scope.row.status == 0?'启用':'禁用'}}</el-button>
-            <el-button type="danger">删除</el-button>
+            <el-button type="danger" @click="del(scope.row.id)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -158,7 +159,7 @@
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page="pagination.currentPage"
-        :page-sizes="[1, 2, 3, 4]"
+        :page-sizes="[2, 4, 6, 8]"
         :page-size="pagination.pageSize"
         layout="total, sizes, prev, pager, next, jumper"
         :total="pagination.total"
@@ -177,7 +178,11 @@
 </template>
 
 <script>
-import { getQuestionData } from "@/api/question.js";
+import {
+  getQuestionData,
+  setQuestionstatus,
+  delQuestionData
+} from "@/api/question.js";
 import { getSubjectData } from "@/api/subject.js"; //请求学科数据
 import { getBusinessData } from "@/api/business.js"; //请求企业数据
 import addQuestion from "./addQuestion.vue";
@@ -190,7 +195,7 @@ export default {
       questionData: [], //题目列表
       pagination: {
         currentPage: 1,
-        pageSize: 1,
+        pageSize: 2,
         total: 10
       },
       form: {
@@ -229,7 +234,12 @@ export default {
   methods: {
     // 获取题库数据
     getData() {
-      getQuestionData(this.form).then(res => {
+      let _params = {
+        page: this.pagination.currentPage, //页码
+        limit: this.pagination.pageSize, //页容量
+        ...this.form // 搜索框的所有form数据
+      };
+      getQuestionData(_params).then(res => {
         console.log("获取题目数据", res);
         this.questionData = res.data.items; //获取的数据保存到questionData数组上
         //数据返回的总条数保存到分页上
@@ -251,7 +261,28 @@ export default {
     add() {
       this.$refs.addQuestion.dialogFormVisible = true;
     },
-
+    // 修改状态
+    setStatus(id) {
+      setQuestionstatus({ id }).then(() => {
+        this.$message.success("状态修改成功");
+        this.getData();
+      });
+    },
+    // 删除题目
+    del(id) {
+      this.$confirm("您确定要删除这个题目吗", "友情提示", {
+        confirmButtonText: "确定删除",
+        cancelButtonText: "取消操作",
+        type: "warning"
+      })
+        .then(() => {
+          delQuestionData({id}).then(() => {
+            this.$message.success("删除成功");
+            this.search();
+          });
+        })
+        .catch(() => {});
+    },
     // 页容量改变时
     handleSizeChange(size) {
       // console.log(`每页 ${val} 条`);

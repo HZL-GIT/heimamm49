@@ -4,7 +4,11 @@
       <!-- 这里是单选 -->
       <div v-for="(item, index) in form.select_options" :key="index" class="item">
         <!-- radio label才是它的值 -->
-        <el-radio v-model="form.single_select_answer" :label="item.label">{{item.label}}</el-radio>
+        <el-radio
+          v-model="form.single_select_answer"
+          :label="item.label"
+          @change="selectChange"
+        >{{item.label}}</el-radio>
         <el-input v-model="item.text"></el-input>
         <!-- 这里用到了 v-model 传值 -->
         <!-- <uploadFile :value="item.image" @input="uploadSuccess"></uploadFile> -->
@@ -15,7 +19,11 @@
       <!-- 这里是多选 -->
       <div v-for="(item, index) in form.select_options" :key="index" class="item">
         <!-- radio label才是它的值 -->
-        <el-checkbox v-model="form.multiple_select_answer" :label="item.label">{{item.label}}</el-checkbox>
+        <el-checkbox
+          v-model="form.multiple_select_answer"
+          :label="item.label"
+          @change="selectChange"
+        >{{item.label}}</el-checkbox>
         <el-input v-model="item.text"></el-input>
         <uploadFile v-model="item.image"></uploadFile>
       </div>
@@ -23,7 +31,7 @@
     <div v-else>
       <!-- 这里是简答题 -->
       <!-- 类似原生的textarea      rows：多少行 -->
-      <el-input type="textarea" rows="10" v-model="form.short_answer"></el-input>
+      <el-input type="textarea" rows="10" v-model="form.short_answer" @change="selectChange"></el-input>
     </div>
   </div>
 </template>
@@ -39,10 +47,14 @@ export default {
     return {};
   },
   methods: {
-      uploadSuccess(val){
-          console.log(val);
-      }
-  },
+    // @input时测试用到
+    uploadSuccess(val) {
+      console.log(val);
+    },
+    selectChange() {
+      this.$emit("change");
+    }
+  }
 };
 </script>
 

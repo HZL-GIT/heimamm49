@@ -75,7 +75,7 @@
             <!-- 富文本编辑器 -->
             <quillEditor
               v-model="form.title"
-              @change="changeEvent"
+              @change="editChange('title')"
               :options="{placeholder:'请在这里输入...'}"
             ></quillEditor>
           </el-form-item>
@@ -83,15 +83,35 @@
           <!--
              在抽离组件将题目渲染出来，但是我们题目的提交还是在父组件，需要从父组件将题目传递过去到子组件
           -->
-          <el-form-item :label="typeObj[form.type]">
+          <el-form-item
+            :label="typeObj[form.type]"
+            :prop="{1:'single_select_answer',2:'multiple_select_answer',3:'short_answer'}[form.type]"
+          >
             <!-- 对象传递：子组件将会和父组件数据统一，子组件里数据变了，父组件也会变 -->
-            <allSelect :form="form"></allSelect>
+            <allSelect :form="form" class="allselect" @change="allSelectChange"></allSelect>
           </el-form-item>
           <hr />
-          <br>
+          <br />
           <!-- 视频解析部分 -->
           <el-form-item label="解析视频">
             <uploadFile v-model="form.video" type="video"></uploadFile>
+          </el-form-item>
+          <hr />
+          <br />
+          <!-- 答案解析 -->
+          <el-form-item label="答案解析" prop="answer_analyze" class="setMargin">
+            <!-- 富文本编辑器 -->
+            <quillEditor
+              v-model="form.answer_analyze"
+              @change="editChange('answer_analyze')"
+              :options="{placeholder:'请在这里输入...'}"
+            ></quillEditor>
+          </el-form-item>
+          <hr />
+          <br />
+          <!-- 试题备注 -->
+          <el-form-item label="试题备注" prop="remark">
+            <el-input v-model="form.remark"></el-input>
           </el-form-item>
         </el-form>
       </div>
@@ -114,7 +134,7 @@ import { regionData } from "element-china-area-data"; //城市级联选择器导
 
 import allSelect from "./allSelect.vue"; //单选题型部分
 import uploadFile from "./uploadFile.vue"; //文件上传部分
-
+import {addQuestionData} from '@/api/question.js'//新增题目
 export default {
   // 因为这里用到的数据在父元素中都有，所以采用 props 父传子的形式，将需要的数据传递过来
   props: ["subjectList", "stepObj", "typeObj", "businessList", "difficultyObj"],
@@ -140,6 +160,8 @@ export default {
         multiple_select_answer: [], //多选答案
         short_answer: "", //简答题答案
         video: "", //解析视频地址
+        answer_analyze: "", //答案解析
+        remark: "", //试题备注
         select_options: [
           {
             label: "A",
@@ -164,27 +186,61 @@ export default {
         ]
       },
       rules: {
-        subject: [{ required: true, message: "请选择学科", trigger: "blur" }],
-        step: [{ required: true, message: "请选择阶段", trigger: "blur" }],
+        subject: [{ required: true, message: "请选择学科", trigger: "change" }],
+        step: [{ required: true, message: "请选择阶段", trigger: "change" }],
         enterprise: [
-          { required: true, message: "请选择企业", trigger: "blur" }
+          { required: true, message: "请选择企业", trigger: "change" }
         ],
-        city: [{ required: true, message: "请选择城市", trigger: "blur" }],
-        type: [{ required: true, message: "请选择题型", trigger: "blur" }],
+        city: [{ required: true, message: "请选择城市", trigger: "change" }],
+        type: [{ required: true, message: "请选择题型", trigger: "change" }],
         difficulty: [
-          { required: true, message: "请选择难度", trigger: "blur" }
+          { required: true, message: "请选择难度", trigger: "change" }
         ],
-        title: [{ required: true, message: "请填写试题标题", trigger: "blur" }]
+        title: [{ required: true, message: "请填写试题标题", trigger: "change" }],
+        single_select_answer: [
+          { required: true, message: "请选择单选答案", trigger: "change" }
+        ],
+        multiple_select_answer: [
+          { required: true, message: "请选择多选答案", trigger: "change" }
+        ],
+        short_answer: [
+          { required: true, message: "请填写简答题", trigger: "change" }
+        ],
+        answer_analyze: [
+          { required: true, message: "请填写答案解析", trigger: "change" }
+        ],
+        remark: [
+          { required: true, message: "请填写试题备注", trigger: "change" }
+        ]
       }
     };
   },
   methods: {
-    // 富文本编辑器相关
-    changeEvent(val) {
-      console.log(val);
+    // 主动触发富文本的表单验证   通过绑定富文本自带的change方法
+    editChange(str) {
+      this.$refs.form.validateField(str);
     },
+    // 选项组件验证
+    allSelectChange() {
+      this.$refs.form.validateField(
+        ["single_select_answer",
+        "multiple_select_answer",
+        "short_answer"]
+      );
+    },
+    // 点击确定按钮
     submit() {
       console.log(this.form);
+      this.$refs.form.validate(result => {
+        // this.$message.success(result + "");
+        if (result) {
+          addQuestionData(this.form).then(()=>{
+            this.$message.success('新增成功');
+            this.dialogFormVisible= false;
+            this.$parent.search()
+          })
+        }
+      });
     }
   }
 };
@@ -194,6 +250,11 @@ export default {
 .addQuestion {
   .el-dialog__header {
     padding: 0;
+  }
+  .allselect {
+    .el-input__inner {
+      border-color: #dcdfe6 !important;
+    }
   }
   .el-form-item__label {
     text-align: left;
