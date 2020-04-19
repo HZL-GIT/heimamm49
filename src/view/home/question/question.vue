@@ -146,7 +146,7 @@
         <el-table-column label="访问量" prop="reads" width="80px"></el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
-            <el-button type="primary">编辑</el-button>
+            <el-button type="primary" @click="edit(scope.row)">编辑</el-button>
             <el-button
               :type="scope.row.status == 1?'warning':'success'"
               @click="setStatus(scope.row.id)"
@@ -173,6 +173,7 @@
       :typeObj="typeObj"
       :businessList="businessList"
       :difficultyObj="difficultyObj"
+      :mode="modeFather"
     ></addQuestion>
   </div>
 </template>
@@ -192,6 +193,7 @@ export default {
   },
   data() {
     return {
+      modeFather: "add",
       questionData: [], //题目列表
       pagination: {
         currentPage: 1,
@@ -244,6 +246,11 @@ export default {
         this.questionData = res.data.items; //获取的数据保存到questionData数组上
         //数据返回的总条数保存到分页上
         this.pagination.total = res.data.pagination.total;
+        // 遍历获取到的数组，里面的城市数据得到的是一个字符串，而编辑时，城市显示要求是数组，所以用 ','号分割一下，让他成为数组      同样的还有多选框的操作
+        this.questionData.forEach(item => {
+          item.city = item.city.split(","); //城市
+          item.multiple_select_answer = item.multiple_select_answer.split(","); //多选框
+        });
       });
     },
     // 点击搜索按钮
@@ -259,7 +266,52 @@ export default {
     },
     // 点击新增
     add() {
+      this.modeFather = "add";
+      // 由于在编辑后，addQuestion.form增加了很多数据，所以在这修改为默认数据
+      this.$refs.addQuestion.form = {
+        subject: "", //学科
+        step: "", //阶段
+        enterprise: "", //企业
+        city: [], //城市
+        type: 1, //题型
+        difficulty: 1, //难度
+        title: "", //试题标题
+        single_select_answer: "", //单选题答案
+        multiple_select_answer: [], //多选答案
+        short_answer: "", //简答题答案
+        video: "", //解析视频地址
+        answer_analyze: "", //答案解析
+        remark: "", //试题备注
+        select_options: [
+          {
+            label: "A",
+            text: "狗不理",
+            image: ""
+          },
+          {
+            label: "B",
+            text: "猫不理",
+            image: ""
+          },
+          {
+            label: "C",
+            text: "麻花",
+            image: ""
+          },
+          {
+            label: "D",
+            text: "炸酱面",
+            image: ""
+          }
+        ]
+      };
       this.$refs.addQuestion.dialogFormVisible = true;
+    },
+    // 编辑
+    edit(row) {
+      this.modeFather = "edit";
+      this.$refs.addQuestion.form = JSON.parse(JSON.stringify(row));
+      this.$refs.addQuestion.dialogFormVisible = true; //显示对话框
     },
     // 修改状态
     setStatus(id) {
@@ -276,7 +328,7 @@ export default {
         type: "warning"
       })
         .then(() => {
-          delQuestionData({id}).then(() => {
+          delQuestionData({ id }).then(() => {
             this.$message.success("删除成功");
             this.search();
           });

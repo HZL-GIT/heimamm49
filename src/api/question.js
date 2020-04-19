@@ -31,4 +31,12 @@ function delQuestionData(data) {
         data,
     })
 }
-export { getQuestionData,addQuestionData,setQuestionstatus,delQuestionData }
+// 编辑题目
+function editQuestionData(data) {
+    return instance({
+        url: '/question/edit',
+        method: 'post',
+        data,
+    })
+}
+export { getQuestionData,addQuestionData,setQuestionstatus,delQuestionData,editQuestionData }

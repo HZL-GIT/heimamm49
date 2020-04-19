@@ -2,7 +2,7 @@
   <div class="addQuestion">
     <!-- fullscreen  是否为全屏显示Dialog 默认false  改为true则为全屏显示 -->
     <el-dialog :visible.sync="dialogFormVisible" :fullscreen="true">
-      <div slot="title" class="title">新增题库测试</div>
+      <div slot="title" class="title">{{mode=='add'?'新增题库':'编辑题库'}}</div>
       <div class="countent">
         <el-form :model="form" ref="form" :rules="rules" label-width="100px">
           <el-form-item label="学科" prop="subject">
@@ -134,14 +134,31 @@ import { regionData } from "element-china-area-data"; //城市级联选择器导
 
 import allSelect from "./allSelect.vue"; //单选题型部分
 import uploadFile from "./uploadFile.vue"; //文件上传部分
-import {addQuestionData} from '@/api/question.js'//新增题目
+import { addQuestionData, editQuestionData } from "@/api/question.js"; //新增题目，编辑题目
 export default {
   // 因为这里用到的数据在父元素中都有，所以采用 props 父传子的形式，将需要的数据传递过来
-  props: ["subjectList", "stepObj", "typeObj", "businessList", "difficultyObj"],
+  props: [
+    "subjectList",
+    "stepObj",
+    "typeObj",
+    "businessList",
+    "difficultyObj",
+    "mode"
+  ],
   components: {
     quillEditor,
     allSelect,
     uploadFile
+  },
+  watch: {
+    dialogFormVisible(val) {
+      if (val == true) {
+        this.$nextTick(() => {
+          // 清空表单验证
+          this.$refs.form.clearValidate();
+        });
+      }
+    }
   },
   data() {
     return {
@@ -196,7 +213,9 @@ export default {
         difficulty: [
           { required: true, message: "请选择难度", trigger: "change" }
         ],
-        title: [{ required: true, message: "请填写试题标题", trigger: "change" }],
+        title: [
+          { required: true, message: "请填写试题标题", trigger: "change" }
+        ],
         single_select_answer: [
           { required: true, message: "请选择单选答案", trigger: "change" }
         ],
@@ -222,11 +241,11 @@ export default {
     },
     // 选项组件验证
     allSelectChange() {
-      this.$refs.form.validateField(
-        ["single_select_answer",
+      this.$refs.form.validateField([
+        "single_select_answer",
         "multiple_select_answer",
-        "short_answer"]
-      );
+        "short_answer"
+      ]);
     },
     // 点击确定按钮
     submit() {
@@ -234,11 +253,23 @@ export default {
       this.$refs.form.validate(result => {
         // this.$message.success(result + "");
         if (result) {
-          addQuestionData(this.form).then(()=>{
-            this.$message.success('新增成功');
-            this.dialogFormVisible= false;
-            this.$parent.search()
-          })
+          if (this.mode == "add") {
+            addQuestionData(this.form).then(() => {
+              this.$message.success("新增成功");
+              this.dialogFormVisible = false;
+              this.$parent.search();
+            });
+          } else {
+            console.log("编辑需要提交的数据", this.form);
+            let _query = JSON.parse(JSON.stringify(this.form));
+            // 编辑接口需要的城市数据是字符串
+            _query.city = _query.city.join(",");
+            editQuestionData(_query).then(() => {
+              this.$message.success("编辑成功");
+              this.dialogFormVisible = false;
+              this.$parent.search();
+            });
+          }
         }
       });
     }
