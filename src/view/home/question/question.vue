@@ -151,7 +151,7 @@
               :type="scope.row.status == 1?'warning':'success'"
               @click="setStatus(scope.row.id)"
             >{{scope.row.status == 0?'启用':'禁用'}}</el-button>
-            <el-button type="danger" @click="del(scope.row.id)">删除</el-button>
+            <el-button type="danger" @click="del(scope.row.id)" v-if="$store.state.role.includes('管理员')">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -354,7 +354,7 @@ export default {
 <style lang="less">
 .question {
   .main2 {
-    margin-top: 20px;
+    margin-top: 18px;
     .red {
       color: red;
     }

@@ -194,7 +194,7 @@ export default {
     width: 150px;
   }
   .main1 {
-    margin-top: 20px;
+    margin-top: 18px;
   }
   .red {
     color: red;

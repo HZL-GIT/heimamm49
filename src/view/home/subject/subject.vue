@@ -32,7 +32,12 @@
           <el-form-item>
             <el-button type="primary" @click="search">搜索</el-button>
             <el-button @click="reset">清除</el-button>
-            <el-button type="primary" icon="el-icon-plus" @click="add" v-if="$store.state.role!='学生'">新增学科</el-button>
+            <el-button
+              type="primary"
+              icon="el-icon-plus"
+              @click="add"
+              v-if="$store.state.role!='学生'"
+            >新增学科</el-button>
           </el-form-item>
         </el-form>
       </el-card>
@@ -52,26 +57,32 @@
             >{{(pagination.currentPage-1)*pagination.pageSize+scope.$index+1}}</template>
           </el-table-column>
           <el-table-column label="学科编号" prop="rid" width="120px"></el-table-column>
-          <el-table-column label="学科名称" prop="name" width="200px"></el-table-column>
-          <el-table-column label="简称" prop="short_name" width="120px"></el-table-column>
+          <el-table-column label="学科名称" prop="name" width="130px"></el-table-column>
+          <el-table-column label="简称" prop="short_name" width="110px"></el-table-column>
           <el-table-column label="创建者" prop="username" width="130px"></el-table-column>
-          <el-table-column label="创建日期" prop="create_time" width="200px"></el-table-column>
-          <el-table-column label="状态" prop="status" width="100px">
-            <template slot-scope="scope">{{scope.row.status == 1 ? '启用':'禁用'}}</template>
+          <el-table-column label="创建日期" prop="create_time" width="180px"></el-table-column>
+          <el-table-column label="状态" prop="status" width="80px">
+            <template slot-scope="scope">
+              <div :class="{red:scope.row.status == 0}">{{scope.row.status == 1 ? '启用':'禁用'}}</div>
+            </template>
           </el-table-column>
           <el-table-column label="操作" v-if="$store.state.role!='学生'">
             <template slot-scope="scope">
-              <el-button type="text" @click="edit(scope.row)">编辑</el-button>
+              <el-button type="primary" @click="edit(scope.row)">编辑</el-button>
               <!-- 
                 {{scope.row.status == 0 ? '启用':'禁用'}}  与上面的状态呈相反效果
                 你显示启用了，则按钮就为禁用
                 你显示禁用了，则按钮就为启用
               -->
               <el-button
-                type="text"
+                :type="scope.row.status==1?'warning':'success'"
                 @click="setStatus(scope.row.id)"
               >{{scope.row.status == 0 ? '启用':'禁用'}}</el-button>
-              <el-button type="text" @click="del(scope.row.id)" v-if="$store.state.role.includes('管理员')">删除</el-button>
+              <el-button
+                type="danger"
+                @click="del(scope.row.id)"
+                v-if="$store.state.role.includes('管理员')"
+              >删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -205,13 +216,14 @@ export default {
           //点击确认
           // console.log(id);
           delSubjectData({ id: id }).then(() => {
-            this.$message.success("删除成功");//$message写法 1
+            this.$message.success("删除成功"); //$message写法 1
             this.search();
           });
         })
         .catch(() => {
           //点击取消
-          this.$message({//$message写法 2
+          this.$message({
+            //$message写法 2
             type: "info",
             message: "已取消删除"
           });
@@ -244,9 +256,12 @@ export default {
     }
   }
   .main {
-    margin-top: 20px;
+    margin-top: 18px;
     .colorBlue {
       color: skyblue;
+    }
+    .red {
+      color: red;
     }
     .pagination {
       text-align: center;

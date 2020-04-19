@@ -61,7 +61,7 @@
             <template slot-scope="scope">
               <el-button type="primary" @click="edit(scope.row)">编辑</el-button>
               <el-button
-                :type="scope.row.status==1?'info':'success'"
+                :type="scope.row.status==1?'warning':'success'"
                 @click="setStatus(scope.row.id)"
               >{{scope.row.status==0?'启用':'禁用'}}</el-button>
               <!-- <el-button type="text">{{scope.row.status==0?'启用':'禁用'}}</el-button> -->
@@ -237,7 +237,7 @@ export default {
     width: 116px;
   }
   .main {
-    margin-top: 20px;
+    margin-top: 18px;
     .pagination {
       text-align: center;
       margin-top: 20px;
