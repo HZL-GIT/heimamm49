@@ -13,12 +13,14 @@ var instance = axios.create({
 // 添加请求拦截器
 instance.interceptors.request.use(function (config) {
     // 在发送请求之前做些什么
-    if (getToken()) {
+    if (getToken()) {//获取到了token
+        // 设置请求头，携带token
         config.headers.token = getToken()
     }
     return config;
 }, function (error) {
     // 对请求错误做些什么
+    //只要return了一个Promise.reject("error")后面的接口的.then就不会执行了
     return Promise.reject(error);
 });
 

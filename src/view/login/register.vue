@@ -224,12 +224,14 @@ export default {
     },
     // 点击改变图片验证码
     changeCodeUrl() {
+      // 为了避免浏览器缓存，加入时间戳（或随机数），以达到点击刷新图形码请求不同的效果
       this.codeUrl =
         process.env.VUE_APP_URL + "/captcha?type=sendsms&t=" + Date.now();
     },
     // 获取表单验证码
     getRecode() {
       let _pass = true;
+      // 需要填写了手机号码与图形码之后才允许发送短信验证码
       this.$refs.ruleForm.validateField(["phone", "code"], error => {
         if (error != "") {
           _pass = false;
